@@ -38,40 +38,14 @@ namespace ChivalryRCON.Network
 
 		private void asyncClient_DataReceived (object sender, byte[] Data, int dataLength)
 		{
-			switch (logState) {
-
-			case LogState.NotLogged:
-				{
-					Debug.Log ("LogState.NotLogged");
-					Packet packet = new Packet ();
-					packet.decode (Data, 0);
-					Packet packet1 = new Packet (Packet.MessageType.PASSWORD);
-					packet1.addString (SHA1Util.SHA1HashStringForUTF8String (string.Concat (pass, packet.getString ())));
-					logState = LogState.Loggin;
-					asyncConnectionManager.Send (packet1.encode ());
-					return;
-					break;
-				}
-			case Server.LogState.Loggin:
-				{
-					Debug.Log ("Server.LogState.Loggin");
-					Packet packet2 = new Packet ();
-					packet2.decode (Data, 0);
-					Packet.MessageType messageType = packet2.msgType;
-					logState = LogState.Logged;
-					break;
-				}
-			case Server.LogState.Logged:
-				{
-					Debug.Log ("Server.LogState.Logged");
-					lock (this.buffer) {
-						this.buffer.AddRange (Data.Take<byte> (dataLength));
-						decodeBuffer ();
-					}
-					break;
-				}
-
+			Debug.Log ("asyncClient_DataReceived, dataLength : " + dataLength);
+			Debug.Log ("before lock (this.buffer)");
+			lock (this.buffer) {
+				Debug.Log ("in lock (this.buffer)");
+				this.buffer.AddRange (Data.Take<byte> (dataLength));
+				decodeBuffer ();
 			}
+			Debug.Log ("after lock (this.buffer)");
 		}
 
 		private void decodeBuffer ()
@@ -82,19 +56,42 @@ namespace ChivalryRCON.Network
 			try {
 				while (this.buffer.Count >= 6 && this.isDecoding) {
 					num1++;
+					Debug.LogFormat ("num1 : {0}", num1);
 					if (num1 <= 100) {
 						int packetSize = Packet.getPacketSize (this.buffer.ToArray (), 0);
 						if (this.buffer.Count < packetSize) {
-							continue;
+							Debug.LogErrorFormat ("this.buffer.Count: {0}, packetSize: {1}", this.buffer.Count, packetSize);
+							return;
+						} else {
+							Debug.LogFormat ("this.buffer.Count: {0}, packetSize: {1}", this.buffer.Count, packetSize);
 						}
 						Packet packet = new Packet ();
 						packet.decode (this.buffer.ToArray (), num);
-						if (packet.msgType < Packet.MessageType.PLAYER_CHAT || packet.msgType > Packet.MessageType.PING || num1 > 200) {
+						if (packet.msgType < 0 || packet.msgType > Packet.MessageType.PING || num1 > 200) {
 							//this.asyncClient_ConnectionLost(null);
 							break;
 						} else {
 							this.buffer.RemoveRange (0, Packet.getPacketSize (this.buffer.ToArray (), 0));
 							switch (packet.msgType) {
+							case Packet.MessageType.SERVER_CONNECT:
+								{
+									Debug.Log ("Packet.MessageType.SERVER_CONNECT");
+									Packet packet1 = new Packet (Packet.MessageType.PASSWORD);
+									packet1.addString (SHA1Util.SHA1HashStringForUTF8String (string.Concat (pass, packet.getString ())));
+									logState = LogState.Loggin;
+									asyncConnectionManager.Send (packet1.encode ());
+									continue;
+								}
+							case Packet.MessageType.SERVER_CONNECT_SUCCESS:
+								{
+									Debug.Log ("Packet.MessageType.SERVER_CONNECT_SUCCESS");
+									continue;
+								}
+							case Packet.MessageType.PASSWORD:
+								{
+									Debug.Log ("Packet.MessageType.PASSWORD");
+									continue;
+								}
 							case Packet.MessageType.PLAYER_CHAT:
 								{
 									Debug.Log ("Packet.MessageType.PLAYER_CHAT");
@@ -164,6 +161,7 @@ namespace ChivalryRCON.Network
 						}
 					} else {
 						//this.asyncClient_ConnectionLost(null);
+						Debug.LogError ("unknown error");
 						this.isDecoding = false;
 						break;
 					}
