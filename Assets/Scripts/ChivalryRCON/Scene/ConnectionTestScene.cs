@@ -12,7 +12,7 @@ namespace ChivalryRCON.Scene
 
 		void Start ()
 		{
-			server = new Server ("192.168.1.192", 27015, "AdminPassword");
+			server = new Server ("192.168.100.99", 27015, "AdminPassword");
 			server.connet ();
 		}
 	}

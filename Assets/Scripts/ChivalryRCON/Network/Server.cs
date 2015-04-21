@@ -8,6 +8,8 @@ namespace ChivalryRCON.Network
 {
 	public class Server
 	{
+		private readonly object syncLock = new object();
+
 		private enum LogState
 		{
 			NotLogged = 0,
@@ -33,19 +35,25 @@ namespace ChivalryRCON.Network
 		{
 			asyncConnectionManager = new AsyncConnectionManager ();
 			asyncConnectionManager.DataReceived += asyncClient_DataReceived;
+			asyncConnectionManager.ConnectionLost += asyncClient_ConnectionLost;
 			asyncConnectionManager.connect (host, port);
 		}
 
 		private void asyncClient_DataReceived (object sender, byte[] Data, int dataLength)
 		{
 			Debug.Log ("asyncClient_DataReceived, dataLength : " + dataLength);
-			Debug.Log ("before lock (this.buffer)");
-			lock (this.buffer) {
-				Debug.Log ("in lock (this.buffer)");
-				this.buffer.AddRange (Data.Take<byte> (dataLength));
-				decodeBuffer ();
-			}
-			Debug.Log ("after lock (this.buffer)");
+			this.buffer.AddRange (Data.Take<byte> (dataLength));
+			decodeBuffer ();
+		}
+
+		public void asyncClient_ConnectionLost(object sender)
+		{
+			Debug.Log ("asyncClient_ConnectionLost");
+			/*
+			this.killAsync();
+			Thread.Sleep(1000);
+			this.initAsync();
+			*/
 		}
 
 		private void decodeBuffer ()
