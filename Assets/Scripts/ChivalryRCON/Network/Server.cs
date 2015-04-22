@@ -132,7 +132,7 @@ namespace ChivalryRCON.Network
 								}
 							case Packet.MessageType.TEAM_CHANGED:
 								{
-									Debug.Log ("Packet.MessageType.PLAYER_CHAT");
+									Debug.Log ("Packet.MessageType.TEAM_CHANGED");
 									continue;
 								}
 							case Packet.MessageType.NAME_CHANGED:
