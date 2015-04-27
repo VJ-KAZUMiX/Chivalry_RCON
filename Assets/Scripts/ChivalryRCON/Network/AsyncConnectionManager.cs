@@ -56,6 +56,9 @@ namespace ChivalryRCON.Network
 		{
 			try {
 				Socket asyncState = (Socket)pAsyncRes.AsyncState;
+				// Complete the connection.
+				asyncState.EndConnect(pAsyncRes);
+
 				if (asyncState.Connected) {
 					this.recieveData = new AsyncCallback (this.OnRecieveData);
 					asyncState.BeginReceive (this.mRecvBuf, 0, (int)this.mRecvBuf.Length, SocketFlags.None, this.recieveData, asyncState);
