@@ -57,14 +57,16 @@ namespace ChivalryRCON.Util
 
 		void Update ()
 		{
-			if (Input.GetMouseButtonDown (0)) {
-				if (EventSystem.current.currentSelectedGameObject == captureButton) {
-					return;
+			if (currentPerformanceMode == PerformanceMode.PowerSaving) {
+				if (Input.GetMouseButtonDown (0)) {
+					if (EventSystem.current.currentSelectedGameObject == captureButton) {
+						return;
+					}
+					changePerformanceMode (PerformanceMode.Normal);
 				}
-				changePerformanceMode (PerformanceMode.Normal);
 			}
 		}
-
+		
 		private void changePerformanceMode (PerformanceMode performanceMode)
 		{
 			if (currentPerformanceMode == performanceMode) {

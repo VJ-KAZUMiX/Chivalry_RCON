@@ -1282,6 +1282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a4b376b7646794182614b8214f18e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCamera: {fileID: 1548500691}
   captureButton: {fileID: 2085088589}
   capturedRawImage: {fileID: 1547721350}
   mainContentsContainer: {fileID: 946440770}
