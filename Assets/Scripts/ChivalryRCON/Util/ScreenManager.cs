@@ -27,9 +27,17 @@ namespace ChivalryRCON.Util
 		[SerializeField]
 		private CanvasGroup mainContentsContainer;
 
+		[SerializeField]
+		private Text dpiText;
+
 		void Awake ()
 		{
 			capturedRawImage.enabled = false;
+		}
+
+		void Start ()
+		{
+			dpiText.text = Screen.dpi.ToString ();
 		}
 		
 		public void captureHandler ()

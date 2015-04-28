@@ -7,8 +7,11 @@ namespace ChivalryRCON.Page
 	{
 		void Start ()
 		{
-			/*
-			// test
+			//layoutTest ();
+		}
+
+		private void layoutTest ()
+		{
 			float pixelsPerUnit = Screen.height / 2;
 			float screenUnitWidth = Screen.width / pixelsPerUnit;
 
@@ -16,7 +19,6 @@ namespace ChivalryRCON.Page
 			Debug.Log (rectTransform.rect);
 			Debug.Log (Screen.width);
 			transform.position = new Vector3 (screenUnitWidth / 2, 0, 0);
-			*/
 		}
 	}
 }
