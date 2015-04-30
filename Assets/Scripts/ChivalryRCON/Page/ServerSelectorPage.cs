@@ -5,20 +5,12 @@ namespace ChivalryRCON.Page
 {
 	public class ServerSelectorPage : PageRoot
 	{
-		void Start ()
-		{
-			//layoutTest ();
-		}
+		[SerializeField]
+		private ServerInfoPage serverInfoPage;
 
-		private void layoutTest ()
+		public void testButtonClickHander ()
 		{
-			float pixelsPerUnit = Screen.height / 2;
-			float screenUnitWidth = Screen.width / pixelsPerUnit;
-
-			RectTransform rectTransform = transform as RectTransform;
-			Debug.Log (rectTransform.rect);
-			Debug.Log (Screen.width);
-			transform.position = new Vector3 (screenUnitWidth / 2, 0, 0);
+			PageManager.Instance.pushPage (serverInfoPage);
 		}
 	}
 }
