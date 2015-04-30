@@ -9,5 +9,10 @@ namespace ChivalryRCON.Page
 		{
 			Debug.Log ("ServerInfoPage willAppear");
 		}
+
+		public void testBackButtonHandler ()
+		{
+			PageManager.Instance.popPage ();
+		}
 	}
 }

@@ -9,6 +9,7 @@ namespace ChivalryRCON.Page
 	public class PageManager : SingletonMonoBehaviour<PageManager>
 	{
 		private const float TRANSITION_DURATION = 0.25f;
+		private const float INCH_PER_MILLIMETER = 25.4f;
 
 		[SerializeField]
 		private PageRoot initialPage;
@@ -106,7 +107,7 @@ namespace ChivalryRCON.Page
 		{
 			outgoingPage.willDisappear ();
 			isOutgoing = true;
-			outgoingPage.transform.DOMove (lastPos, TRANSITION_DURATION)
+			outgoingPage.transform.DOLocalMove (lastPos, TRANSITION_DURATION)
 				.SetEase (Ease.OutCubic)
 					.OnComplete (delegate () {
 						isOutgoing = false;
@@ -123,10 +124,11 @@ namespace ChivalryRCON.Page
 		private IEnumerator pageIncomingCoroutine (PageRoot incomingPage, Vector3 startPos)
 		{
 			incomingPage.willAppear ();
-			incomingPage.transform.position = startPos;
+			incomingPage.transform.localPosition = startPos;
+			Debug.Log (incomingPage.transform.localPosition);
 			incomingPage.gameObject.SetActive (true);
 			isIncoming = true;
-			incomingPage.transform.DOMove (Vector3.zero, TRANSITION_DURATION)
+			incomingPage.transform.DOLocalMove (Vector3.zero, TRANSITION_DURATION)
 				.SetEase (Ease.OutCubic)
 					.OnComplete (delegate () {
 						isIncoming = false;
@@ -139,22 +141,27 @@ namespace ChivalryRCON.Page
 
 		private Vector3 calcPushOutPos ()
 		{
-			return new Vector3 (-calcScreenUnitWidth (), 0, 0);
+			return new Vector3 (-calcScreenPhysicalWidth (), 0, 0);
 		}
 
 		private Vector3 calcPushInPos ()
 		{
-			return new Vector3 (calcScreenUnitWidth (), 0, 0);
+			return new Vector3 (calcScreenPhysicalWidth (), 0, 0);
 		}
 
 		private Vector3 calcPopOutPos ()
 		{
-			return new Vector3 (calcScreenUnitWidth (), 0, 0);
+			return new Vector3 (calcScreenPhysicalWidth (), 0, 0);
 		}
 
 		private Vector3 calcPopInPos ()
 		{
-			return new Vector3 (-calcScreenUnitWidth (), 0, 0);
+			return new Vector3 (-calcScreenPhysicalWidth (), 0, 0);
+		}
+
+		private float calcScreenPhysicalWidth ()
+		{
+			return Screen.width * INCH_PER_MILLIMETER / Screen.dpi;
 		}
 
 		private float calcScreenUnitWidth ()
