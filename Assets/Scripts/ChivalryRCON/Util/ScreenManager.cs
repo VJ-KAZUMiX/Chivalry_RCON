@@ -27,9 +27,17 @@ namespace ChivalryRCON.Util
 		[SerializeField]
 		private CanvasGroup mainContentsContainer;
 
+		[SerializeField]
+		private Text dpiText;
+
 		void Awake ()
 		{
 			capturedRawImage.enabled = false;
+		}
+
+		void Start ()
+		{
+			dpiText.text = Screen.dpi.ToString ();
 		}
 		
 		public void captureHandler ()
@@ -57,14 +65,16 @@ namespace ChivalryRCON.Util
 
 		void Update ()
 		{
-			if (Input.GetMouseButtonDown (0)) {
-				if (EventSystem.current.currentSelectedGameObject == captureButton) {
-					return;
+			if (currentPerformanceMode == PerformanceMode.PowerSaving) {
+				if (Input.GetMouseButtonDown (0)) {
+					if (EventSystem.current.currentSelectedGameObject == captureButton) {
+						return;
+					}
+					changePerformanceMode (PerformanceMode.Normal);
 				}
-				changePerformanceMode (PerformanceMode.Normal);
 			}
 		}
-
+		
 		private void changePerformanceMode (PerformanceMode performanceMode)
 		{
 			if (currentPerformanceMode == performanceMode) {
