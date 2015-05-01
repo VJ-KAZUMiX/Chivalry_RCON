@@ -9,6 +9,7 @@ namespace ChivalryRCON.Page
 	public class PageManager : SingletonMonoBehaviour<PageManager>
 	{
 		private const float TRANSITION_DURATION = 0.25f;
+		private const float TRANSITION_SCALE = 2.0f;
 		private const float INCH_PER_MILLIMETER = 25.4f;
 
 		[SerializeField]
@@ -47,7 +48,7 @@ namespace ChivalryRCON.Page
 
 			// outgoing
 			if (currentPage != null) {
-				StartCoroutine (pageOutgoingCoroutine (currentPage, calcPushOutPos ()));
+				StartCoroutine (pageOutgoingCoroutine (currentPage, calcPushOutPos (), 1.0f / TRANSITION_SCALE));
 				currentPage = null;
 			}
 
@@ -59,7 +60,7 @@ namespace ChivalryRCON.Page
 			// incoming
 			currentPage = page;
 			stackPageList.Add (page);
-			StartCoroutine (pageIncomingCoroutine (page, calcPushInPos ()));
+			StartCoroutine (pageIncomingCoroutine (page, calcPushInPos (), TRANSITION_SCALE));
 
 			while (isOutgoing || isIncoming) {
 				yield return null;
@@ -83,7 +84,7 @@ namespace ChivalryRCON.Page
 			// TODO: Add a UI Mask
 
 			// outgoing
-			StartCoroutine (pageOutgoingCoroutine (currentPage, calcPopOutPos ()));
+			StartCoroutine (pageOutgoingCoroutine (currentPage, calcPopOutPos (), TRANSITION_SCALE));
 			stackPageList.RemoveAt (stackPageList.Count - 1);
 
 			PageRoot incomingPage = stackPageList [stackPageList.Count - 1];
@@ -94,7 +95,7 @@ namespace ChivalryRCON.Page
 			}
 
 			// incoming
-			StartCoroutine (pageIncomingCoroutine (incomingPage, calcPopInPos ()));
+			StartCoroutine (pageIncomingCoroutine (incomingPage, calcPopInPos (), 1.0f / TRANSITION_SCALE));
 
 			while (isOutgoing || isIncoming) {
 				yield return null;
@@ -108,7 +109,7 @@ namespace ChivalryRCON.Page
 
 		private bool isOutgoing = false;
 
-		private IEnumerator pageOutgoingCoroutine (PageRoot outgoingPage, Vector3 lastPos)
+		private IEnumerator pageOutgoingCoroutine (PageRoot outgoingPage, Vector3 lastPos, float lastScale)
 		{
 			outgoingPage.willDisappear ();
 			isOutgoing = true;
@@ -117,6 +118,8 @@ namespace ChivalryRCON.Page
 					.OnComplete (delegate () {
 						isOutgoing = false;
 					});
+			outgoingPage.transform.DOScale (lastScale, TRANSITION_DURATION)
+				.SetEase (Ease.OutCubic);
 			while (isOutgoing) {
 				yield return null;
 			}
@@ -126,11 +129,11 @@ namespace ChivalryRCON.Page
 
 		private bool isIncoming = false;
 
-		private IEnumerator pageIncomingCoroutine (PageRoot incomingPage, Vector3 startPos)
+		private IEnumerator pageIncomingCoroutine (PageRoot incomingPage, Vector3 startPos, float startScale)
 		{
 			incomingPage.willAppear ();
 			incomingPage.transform.localPosition = startPos;
-			Debug.Log (incomingPage.transform.localPosition);
+			incomingPage.transform.localScale = new Vector3 (startScale, startScale, 1);
 			incomingPage.gameObject.SetActive (true);
 			isIncoming = true;
 			incomingPage.transform.DOLocalMove (Vector3.zero, TRANSITION_DURATION)
@@ -138,6 +141,8 @@ namespace ChivalryRCON.Page
 					.OnComplete (delegate () {
 						isIncoming = false;
 					});
+			incomingPage.transform.DOScale (Vector3.one, TRANSITION_DURATION)
+				.SetEase (Ease.OutCubic);
 			while (isIncoming) {
 				yield return null;
 			}
@@ -146,22 +151,26 @@ namespace ChivalryRCON.Page
 
 		private Vector3 calcPushOutPos ()
 		{
-			return new Vector3 (-calcScreenPhysicalWidth (), 0, 0);
+			float physicalWidth  = calcScreenPhysicalWidth ();
+			return new Vector3 (-physicalWidth + (physicalWidth - physicalWidth / TRANSITION_SCALE) / 2.0f, 0, 0);
 		}
 
 		private Vector3 calcPushInPos ()
 		{
-			return new Vector3 (calcScreenPhysicalWidth (), 0, 0);
+			float physicalWidth  = calcScreenPhysicalWidth ();
+			return new Vector3 (physicalWidth + (physicalWidth * TRANSITION_SCALE - physicalWidth) / 2.0f, 0, 0);
 		}
 
 		private Vector3 calcPopOutPos ()
 		{
-			return new Vector3 (calcScreenPhysicalWidth (), 0, 0);
+			float physicalWidth  = calcScreenPhysicalWidth ();
+			return new Vector3 (physicalWidth + (physicalWidth * TRANSITION_SCALE - physicalWidth) / 2.0f, 0, 0);
 		}
 
 		private Vector3 calcPopInPos ()
 		{
-			return new Vector3 (-calcScreenPhysicalWidth (), 0, 0);
+			float physicalWidth  = calcScreenPhysicalWidth ();
+			return new Vector3 (-physicalWidth + (physicalWidth - physicalWidth / TRANSITION_SCALE) / 2.0f, 0, 0);
 		}
 
 		private float calcScreenPhysicalWidth ()
