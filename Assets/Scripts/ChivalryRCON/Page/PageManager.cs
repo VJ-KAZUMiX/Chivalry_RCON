@@ -20,6 +20,11 @@ namespace ChivalryRCON.Page
 		void Awake ()
 		{
 			DOTween.Init ();
+
+			// hide all children
+			foreach (Transform child in transform) {
+				child.gameObject.SetActive (false);
+			}
 		}
 
 		IEnumerator Start ()
